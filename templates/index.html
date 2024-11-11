@@ -23,7 +23,8 @@
                 </button>
             </div>
 
-            <!-- Natural Language Input -->
+            
+            <!-- LLM input plek -->
             <div class="mb-6">
                 <div class="flex flex-col space-y-2">
                     <input type="text" 
@@ -38,10 +39,10 @@
                 <div id="detectedObject" class="mt-2 text-sm text-gray-600"></div>
             </div>
 
-            <!-- Status Message -->
+            <!-- feedback bericht -->
             <div id="statusMessage" class="mb-6 p-4 rounded hidden"></div>
 
-            <!-- Video Feed Container -->
+            <!-- Video -->
             <div class="flex justify-center">
                 <div class="relative bg-black rounded-lg overflow-hidden" style="width: 640px; height: 480px;">
                     <img src="{{ url_for('video_feed') }}" class="absolute inset-0 w-full h-full object-contain" id="videoFeed">

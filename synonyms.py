@@ -1,5 +1,3 @@
-# synonyms.py
-
 synonyms = {
     # Car key 
     "autosleutel": "car-key",
@@ -9,6 +7,7 @@ synonyms = {
     # "sleutelbos": "keys",
     # "huissleutels": "keys",
     "voertuigsleutel": "car-key",
+    "car key": "car-key",
 
     # Wallet
     "portemonnee": "wallet",
@@ -16,11 +15,13 @@ synonyms = {
     "geldbeurs": "wallet",
     "geldtas": "wallet",
     "geldzakje": "wallet",
+    "wallet": "wallet",
 
     # Carkeys
     "autosleutels": "carkeys",
     "reserveautosleutels": "carkeys",
     "reserve sleutels": "carkeys",
+    "carkey": "carkeys",
 
     # Comb
     "kam": "comb",
@@ -29,6 +30,7 @@ synonyms = {
     "zak kam": "comb",
     "kapselkam": "comb",
     "stylingkam": "comb",
+    "comb": "comb",
 
     # Glasses
     "bril": "glasses",
@@ -38,6 +40,7 @@ synonyms = {
     "verrekijker": "glasses",
     "correctiebril": "glasses",
     "ogen bescherming": "glasses",
+    "glasses": "glasses",
 
     # Keys
     "sleutels": "keys",
@@ -46,6 +49,7 @@ synonyms = {
     "toegangssleutel": "keys",
     "sleutelhanger": "keys",
     "sleutelbos": "keys",
+    "keys": "keys",
 
     # Mobile phone
     "mobiele telefoon": "mobile-phone",
@@ -55,6 +59,7 @@ synonyms = {
     "telefoon": "mobile-phone",
     "mobieltje": "mobile-phone",
     "handtelefoon": "mobile-phone",
+    "mobile phone": "mobile-phone",
 
     # Pen
     "pen": "pen",

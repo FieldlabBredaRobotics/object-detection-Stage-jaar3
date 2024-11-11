@@ -1,20 +1,4 @@
-// Haal beschikbare objecten op bij het laden van de pagina
-window.onload = async function() {
-    try {
-        const response = await fetch('/get_objects');
-        const data = await response.json();
-        const select = document.getElementById('objectInput');
-        data.objects.forEach(object => {
-            const option = document.createElement('option');
-            option.value = object;
-            option.textContent = object;
-            select.appendChild(option);
-        });
-    } catch (error) {
-        showStatus('Fout bij het laden van objecten', true);
-    }
-};
-
+// feedback bericht laten zien 
 function showStatus(message, isError = false) {
     const statusDiv = document.getElementById('statusMessage');
     statusDiv.textContent = message;
@@ -35,6 +19,7 @@ async function startDetection() {
     }
 }
 
+
 async function stopDetection() {
     try {
         const response = await fetch('/stop_detection');
@@ -45,24 +30,8 @@ async function stopDetection() {
     }
 }
 
-async function setTargetObject() {
-    const objectInput = document.getElementById('objectInput');
-    const objectName = objectInput.value.trim();
-    
-    if (!objectName) {
-        showStatus('Selecteer een object', true);
-        return;
-    }
 
-    try {
-        const response = await fetch(`/set_target/${encodeURIComponent(objectName)}`);
-        const data = await response.json();
-        showStatus(data.message, data.status === 'error');
-    } catch (error) {
-        showStatus('Fout bij het instellen van doel object', true);
-    }
-}
-
+// Functie voor de verwerking van natuurlijke taal
 async function processNaturalLanguage() {
     const nlInput = document.getElementById('nlInput').value.trim();
     const detectedObjectDiv = document.getElementById('detectedObject');
