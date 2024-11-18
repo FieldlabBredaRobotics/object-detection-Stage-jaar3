@@ -8,8 +8,9 @@ import numpy as np
 import os
 import spacy
 from nltk.corpus import wordnet as wn
-
+import joblib
 from synonyms import synonyms
+
 
 app = Flask(__name__)
 camera = None
@@ -48,6 +49,11 @@ def init_model():
     for idx, name in model.names.items():
         print(f"- {name}")
 
+def classify_with_model(text):
+    # Try loading the model directly
+    text_classifier = joblib.load('models/product_classifier.pkl')
+    prediction = text_classifier.predict([text])
+    return prediction[0]
 
 
 def generate_frames():
@@ -161,15 +167,19 @@ def process_natural_language():
         if word in text:
             return jsonify({
                 'status': 'success',
-                'detected_object': mapped_object
+                'detected_object': mapped_object,
+                'source': 'synonyms'
             })
 
+    # Als er geen synoniem wordt gevonden, gebruik het AI-model om te classificeren
+    classification_result = classify_with_model(text)
+    
     doc = nlp(text) # met NLP model woorden omzetten naar tokens 
-    detected_objects = []
+    detected_objects = [token.lemma_ for token in doc]
 
     # opzoek naar relevante versie van het woord, bij spel fout ofzo dat het nog steeds gevonden wordt 
-    for token in doc:
-        detected_objects.append(token.lemma_) 
+    #for token in doc:
+    #    detected_objects.append(token.lemma_) 
 
     # Controleer op synoniemen voor de gedetecteerde woorden
     for obj in detected_objects:
@@ -179,15 +189,27 @@ def process_natural_language():
         if obj in synonyms or any(syn in synonyms for syn in obj_synonyms):
             matched_object = synonyms.get(obj, None)
             if matched_object:
-                return jsonify({
+     # Als synoniem wordt gevonden, controleer de AI-classificatie
+                if classification_result == matched_object:
+                 return jsonify({
                     'status': 'success',
-                    'detected_object': matched_object
+                    'detected_object': matched_object,
+                        'source': 'synonyms_and_model_match'
+                    })
+                else:
+                    return jsonify({
+                        'status': 'warning',
+                        'message': 'Synoniemen en model resultaten komen niet overeen.',
+                        'synonyms_result': matched_object,
+                        'ai_model_result': classification_result
                 })
 
+       # Als geen synoniem wordt gevonden, geef alleen het modelresultaat terug
     return jsonify({
-        'status': 'error',
-        'message': 'Geen overeenkomend object gevonden.'
-    })
+        'status': 'success',
+        'detected_object': classification_result,
+        'source': 'ai_model' 
+})
 
 if __name__ == '__main__':
     init_camera()

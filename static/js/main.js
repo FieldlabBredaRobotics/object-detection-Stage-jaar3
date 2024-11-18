@@ -1,4 +1,4 @@
-// feedback bericht laten zien 
+// feedback bericht laten zien
 function showStatus(message, isError = false) {
     const statusDiv = document.getElementById('statusMessage');
     statusDiv.textContent = message;
@@ -19,7 +19,6 @@ async function startDetection() {
     }
 }
 
-
 async function stopDetection() {
     try {
         const response = await fetch('/stop_detection');
@@ -29,7 +28,6 @@ async function stopDetection() {
         showStatus('Fout bij het stoppen van detectie', true);
     }
 }
-
 
 // Functie voor de verwerking van natuurlijke taal
 async function processNaturalLanguage() {
@@ -56,6 +54,12 @@ async function processNaturalLanguage() {
             detectedObjectDiv.textContent = `Gedetecteerd object: ${data.detected_object}`;
             showStatus(`Zoeken naar: ${data.detected_object}`, false);
             
+            if (data.source === 'synonyms_and_model_match') {
+                showStatus(`Synoniemen en modelresultaten komen overeen voor: ${data.detected_object}`, false);
+            } else if (data.source === 'warning') {
+                showStatus(`Let op: Synoniemen en modelresultaten komen niet overeen. Synoniemen: ${data.synonyms_result}, Modelresultaat: ${data.ai_model_result}`, true);
+            }
+
             // Automatisch het object instellen als doel
             const targetResponse = await fetch(`/set_target/${encodeURIComponent(data.detected_object)}`);
             const targetData = await targetResponse.json();
