@@ -30,6 +30,52 @@ async function stopDetection() {
 }
 
 // Functie voor de verwerking van natuurlijke taal
+// async function processNaturalLanguage() {
+//     const nlInput = document.getElementById('nlInput').value.trim();
+//     const detectedObjectDiv = document.getElementById('detectedObject');
+    
+//     if (!nlInput) {
+//         showStatus('Voer eerst een beschrijving in', true);
+//         return;
+//     }
+
+//     try {
+//         const response = await fetch('/process_natural_language', {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//             },
+//             body: JSON.stringify({ text: nlInput })
+//         });
+        
+//         const data = await response.json();
+//         console.log(data)
+        
+//         if (data.status === 'success') {
+//             detectedObjectDiv.textContent = `Gedetecteerd object: ${data.detected_object}`;
+//             showStatus(`Zoeken naar: ${data.detected_object}`, false);
+            
+//             if (data.source === 'synonyms_and_model_match') {
+//                 showStatus(`Synoniemen en modelresultaten komen overeen voor: ${data.detected_object}`, false);
+//             } else if (data.source === 'warning') {
+//                 showStatus(`Let op: Synoniemen en modelresultaten komen niet overeen. Synoniemen: ${data.synonyms_result}, Modelresultaat: ${data.ai_model_result}`, true);
+//             }
+
+//             // Automatisch het object instellen als doel
+//             const targetResponse = await fetch(`/set_target/${encodeURIComponent(data.detected_object)}`);
+//             const targetData = await targetResponse.json();
+            
+//             if (targetData.status === 'success') {
+//                 showStatus(`Object ingesteld op: ${data.detected_object}`, false);
+//             }
+//         } else {
+//             showStatus(data.message, true);
+//         }
+//     } catch (error) {
+//         showStatus('Fout bij het verwerken van de tekst', true);
+//     }
+//}
+
 async function processNaturalLanguage() {
     const nlInput = document.getElementById('nlInput').value.trim();
     const detectedObjectDiv = document.getElementById('detectedObject');
@@ -53,20 +99,6 @@ async function processNaturalLanguage() {
         if (data.status === 'success') {
             detectedObjectDiv.textContent = `Gedetecteerd object: ${data.detected_object}`;
             showStatus(`Zoeken naar: ${data.detected_object}`, false);
-            
-            if (data.source === 'synonyms_and_model_match') {
-                showStatus(`Synoniemen en modelresultaten komen overeen voor: ${data.detected_object}`, false);
-            } else if (data.source === 'warning') {
-                showStatus(`Let op: Synoniemen en modelresultaten komen niet overeen. Synoniemen: ${data.synonyms_result}, Modelresultaat: ${data.ai_model_result}`, true);
-            }
-
-            // Automatisch het object instellen als doel
-            const targetResponse = await fetch(`/set_target/${encodeURIComponent(data.detected_object)}`);
-            const targetData = await targetResponse.json();
-            
-            if (targetData.status === 'success') {
-                showStatus(`Object ingesteld op: ${data.detected_object}`, false);
-            }
         } else {
             showStatus(data.message, true);
         }
@@ -74,3 +106,4 @@ async function processNaturalLanguage() {
         showStatus('Fout bij het verwerken van de tekst', true);
     }
 }
+
