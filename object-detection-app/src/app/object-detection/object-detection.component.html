@@ -1,0 +1,43 @@
+<!-- <div>
+    <h1>Object Detectie</h1>
+    <button (click)="startDetection()">Start Detectie</button>
+    <button (click)="stopDetection()">Stop Detectie</button>
+    <input [(ngModel)]="userInput" placeholder="Beschrijf wat je wilt detecteren..." />
+    <button (click)="processNaturalLanguage()">Verwerk Opdracht</button>
+    
+    <div *ngIf="detectedObject">
+      Gedetecteerd object: {{ detectedObject }}
+    </div>
+  </div>
+   -->
+   <h1>Object Detection</h1>
+   <div style="text-align:center;">
+    <h1>Object Detection</h1>
+    <div>
+      <input type="text" placeholder="Type iets" />
+      <video #video width="640" height="480" autoplay></video>
+    </div>
+  </div>
+  
+  <div>
+    <h2>Object Detection</h2>
+    
+    <div>
+      <input 
+        [(ngModel)]="userInput" 
+        placeholder="Enter description"
+      >
+      <button (click)="processNaturalLanguage()">
+        Process Description
+      </button>
+    </div>
+  
+    <div *ngIf="detectedObject">
+      <p>Detected Object: {{ detectedObject }}</p>
+    </div>
+  
+    <div>
+      <button (click)="startDetection()">Start Detection</button>
+      <button (click)="stopDetection()">Stop Detection</button>
+    </div>
+  </div>

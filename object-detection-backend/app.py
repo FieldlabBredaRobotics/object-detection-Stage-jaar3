@@ -1,3 +1,4 @@
+import sqlite3
 from flask import Flask, Response, render_template, jsonify, request
 import cv2
 from ultralytics import YOLO
@@ -194,6 +195,36 @@ def set_target(object_name):
     global target_object
     target_object = object_name
     return jsonify({"status": "success", "message": f"Target object set to: {object_name}"})
+
+ # toegevoegd voor data opslaan in SQLite
+@app.route('/save_product_match', methods=['POST'])
+def save_product_match():
+    data = request.get_json()
+    user_input = data['userInput']
+    detected_product = data['detectedProduct']
+    correct_product = data['correctProduct']
+    
+    # Sla dit op in de database
+    # Voorbeeld met SQLite
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO product_matches (user_input, detected_product, correct_product) VALUES (?, ?, ?)",
+                   (user_input, detected_product, correct_product))
+    conn.commit()
+    conn.close()
+
+    return jsonify({'message': 'Product match saved'}), 200
+
+@app.route('/get_product_stats', methods=['GET'])
+def get_product_stats():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT detected_product, COUNT(*) FROM product_matches GROUP BY detected_product")
+    stats = cursor.fetchall()
+    conn.close()
+
+    return jsonify(stats)
+
 
 def generate_frames():
     global output_frame, detection_running, target_object
