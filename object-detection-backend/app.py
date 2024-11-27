@@ -1,6 +1,7 @@
 import sqlite3
 from flask import Flask, Response, render_template, jsonify, request
 import cv2
+from flask_cors import CORS
 from ultralytics import YOLO
 import threading
 import queue
@@ -18,7 +19,7 @@ import nltk
 from synonyms import synonyms
 
 app = Flask(__name__)
-
+CORS(app)
 # Global variables
 camera = None
 output_frame = None
@@ -29,33 +30,6 @@ yolo_model = None
 target_object = None
 text_classifier = None
 nlp = spacy.load("nl_core_news_sm")
-
-# # Initialize NLTK resources
-# def init_nltk():
-#     try:
-#         nltk.download('punkt')
-#         nltk.download('stopwords')
-#         nltk.download('wordnet')
-#         nltk.download('omw-1.4')
-#     except Exception as e:
-#         print(f"Warning: Could not download all NLTK resources: {e}")
-
-# def get_synonyms(word):
-#     try:
-#         synonyms = set()
-#         for syn in wn.synsets(word, lang='nld'):
-#             for lemma in syn.lemmas('nld'):
-#                 synonyms.add(lemma.name())
-#         return list(synonyms)
-#     except Exception as e:
-#         print(f"Warning: Could not get synonyms: {e}")
-#         return []  
-
-# def get_synonyms(predicted_category):
-#     if predicted_category in synonyms:
-#         return [synonyms[predicted_category]]
-#     else:
-#         return []
 
 # Import de synonyms dictionary uit je synonyms.py bestand
 from synonyms import synonyms
@@ -126,6 +100,7 @@ def preprocess_text(text):
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/video_feed')
 def video_feed():

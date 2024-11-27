@@ -7,7 +7,7 @@ import { ObjectDetectionComponent } from './object-detection/object-detection.co
 import { ProductStatsComponent } from './product-stats/product-stats.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgChartsModule } from 'ng2-charts';
+//import { NgChartsModule } from 'ng2-charts';
 import { RouterModule } from '@angular/router'; // Dit is nodig, maar geen routes hier configureren
 import { AppRoutesModule } from './app.routes';
 import { StartScreenComponent } from './start-screen/start-screen.component';
@@ -22,7 +22,7 @@ import { StartScreenComponent } from './start-screen/start-screen.component';
   imports: [
     CommonModule,
     FormsModule,
-    NgChartsModule,
+   // NgChartsModule,
     BrowserModule,
     AppRoutesModule, 
     RouterModule,

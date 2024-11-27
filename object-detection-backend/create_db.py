@@ -8,12 +8,20 @@ cursor = conn.cursor()
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS product_matches (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_input TEXT NOT NULL,
+        user_input TEXT NULL,
         detected_product TEXT NOT NULL,
         correct_product TEXT NOT NULL
     );
 ''')
 
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS text_matches (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_input TEXT NULL,
+        detected_product TEXT NOT NULL,
+        correct_product TEXT NOT NULL
+    );
+''')
 # Sla de veranderingen op en sluit de verbinding
 conn.commit()
 conn.close()

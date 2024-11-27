@@ -1,25 +1,4 @@
-<!-- <div>
-    <h1>Object Detectie</h1>
-    <button (click)="startDetection()">Start Detectie</button>
-    <button (click)="stopDetection()">Stop Detectie</button>
-    <input [(ngModel)]="userInput" placeholder="Beschrijf wat je wilt detecteren..." />
-    <button (click)="processNaturalLanguage()">Verwerk Opdracht</button>
-    
-    <div *ngIf="detectedObject">
-      Gedetecteerd object: {{ detectedObject }}
-    </div>
-  </div>
-   -->
-   <h1>Object Detection</h1>
-   <div style="text-align:center;">
-    <h1>Object Detection</h1>
-    <div>
-      <input type="text" placeholder="Type iets" />
-      <video #video width="640" height="480" autoplay></video>
-    </div>
-  </div>
-  
-  <div>
+  <!-- <div>
     <h2>Object Detection</h2>
     
     <div>
@@ -41,3 +20,71 @@
       <button (click)="stopDetection()">Stop Detection</button>
     </div>
   </div>
+
+
+   -->
+
+   <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Object Detection</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <h2 class="my-4">Object Detection</h2>
+    
+    <div class="form-group">
+      <input 
+        [(ngModel)]="userInput" 
+        class="form-control" 
+        placeholder="Enter description"
+      >
+      <button class="btn btn-primary mt-2" (click)="processNaturalLanguage()">
+        Process Description
+      </button>
+    </div>
+  
+    <div *ngIf="detectedObject" class="alert alert-info">
+      <p>Detected Object: {{ detectedObject }}</p>
+    </div>
+  
+    <div class="my-4">
+      <button class="btn btn-success" (click)="startDetection()">Start Detection</button>
+      <button class="btn btn-danger" (click)="stopDetection()">Stop Detection</button>
+    </div>
+
+    <div class="my-4">
+      <h4>Live Camera Feed</h4>
+      <img [src]="cameraFeedUrl" class="img-fluid" alt="Camera Feed">
+    </div>
+
+    <div class="my-4">
+      <h4>Feedback</h4>
+      <div class="row">
+        <div class="col-md-6" *ngFor="let objectClass of objectClasses">
+          <div class="form-group">
+            <label>{{ objectClass }}</label>
+            <div>
+              <button class="btn btn-outline-success" (click)="giveFeedback(objectClass, true)">Ja</button>
+              <button class="btn btn-outline-danger" (click)="giveFeedback(objectClass, false)">Nee</button>
+            </div>
+            <div *ngIf="feedback[objectClass] === false" class="mt-2">
+              <select [(ngModel)]="correctClass[objectClass]" class="form-control">
+                <option *ngFor="let option of objectClasses" [value]="option">{{ option }}</option>
+              </select>
+              <button class="btn btn-warning mt-2" (click)="submitFeedback(objectClass)">Submit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
