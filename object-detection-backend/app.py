@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, Response, render_template, jsonify, request
+from flask import Flask, Response, g, render_template, jsonify, request
 import cv2
 from flask_cors import CORS
 from ultralytics import YOLO
@@ -20,6 +20,7 @@ from synonyms import synonyms
 
 app = Flask(__name__)
 CORS(app)
+
 # Global variables
 camera = None
 output_frame = None
@@ -31,9 +32,21 @@ target_object = None
 text_classifier = None
 nlp = spacy.load("nl_core_news_sm")
 
-# Import de synonyms dictionary uit je synonyms.py bestand
-from synonyms import synonyms
+# Zorg ervoor dat het pad naar de database correct is
+db_path = os.path.join(os.path.dirname(__file__), 'database', 'database.db')
 
+def get_db_connection():
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+@app.teardown_appcontext
+def close_db_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
+        
 def get_synonyms(user_input):
     # Maak een lege lijst voor synoniemen
     matched_classes = []
@@ -50,7 +63,6 @@ def get_synonyms(user_input):
     
     # Als er synoniemen zijn gevonden, geef dan de bijbehorende klassen terug
     return matched_classes if matched_classes else []
-
 
 def init_camera():
     global camera
@@ -101,7 +113,6 @@ def preprocess_text(text):
 def index():
     return render_template('index.html')
 
-
 @app.route('/video_feed')
 def video_feed():
     return Response(generate_frames(),
@@ -127,7 +138,6 @@ def process_natural_language():
     print ("eind prediction")
     print(f"Predicted category: {predicted_category}")
     print(f"Synonyms found: {synonyms.get(predicted_category.lower(), [])}")
-
 
     # Get synonyms with error handlin\
     synonyms_list = get_synonyms(predicted_category)
@@ -171,34 +181,70 @@ def set_target(object_name):
     target_object = object_name
     return jsonify({"status": "success", "message": f"Target object set to: {object_name}"})
 
- # toegevoegd voor data opslaan in SQLite
 @app.route('/save_product_match', methods=['POST'])
 def save_product_match():
     data = request.get_json()
-    user_input = data['userInput']
     detected_product = data['detectedProduct']
     correct_product = data['correctProduct']
     
     # Sla dit op in de database
-    # Voorbeeld met SQLite
-    conn = sqlite3.connect('database.db')
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO product_matches (user_input, detected_product, correct_product) VALUES (?, ?, ?)",
-                   (user_input, detected_product, correct_product))
+    cursor.execute("INSERT INTO product_matches (detected_product, correct_product) VALUES (?, ?)",
+                   (detected_product, correct_product))
     conn.commit()
     conn.close()
 
     return jsonify({'message': 'Product match saved'}), 200
 
+
 @app.route('/get_product_stats', methods=['GET'])
 def get_product_stats():
-    conn = sqlite3.connect('database.db')
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT detected_product, COUNT(*) FROM product_matches GROUP BY detected_product")
     stats = cursor.fetchall()
     conn.close()
 
     return jsonify(stats)
+
+
+@app.route('/capture_and_detect', methods=['POST'])
+def capture_and_detect():
+    global camera, yolo_model
+
+    if camera is None or not camera.isOpened():
+        return jsonify({"status": "error", "message": "Camera not initialized"}), 500
+
+    success, frame = camera.read()
+    if not success:
+        return jsonify({"status": "error", "message": "Failed to capture image"}), 500
+
+    frame = cv2.resize(frame, (640, 480))
+
+    if yolo_model is None:
+        return jsonify({"status": "error", "message": "YOLO model not loaded"}), 500
+
+    results = yolo_model(frame)
+    detected_objects = {}
+
+    for detection in results[0].boxes.data:
+        class_id = int(detection[5])
+        class_name = results[0].names[class_id].lower().replace('-', '_')
+        if class_name in detected_objects:
+            detected_objects[class_name] += 1
+        else:
+            detected_objects[class_name] = 1
+
+    # Update the database with the detected objects
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        for object_class, count in detected_objects.items():
+            cursor.execute(f"UPDATE count_detected SET {object_class} = COALESCE({object_class}, 0) + ? WHERE id = 1", (count,))
+        conn.commit()
+
+    return jsonify({"status": "success", "detected_objects": detected_objects})
+
 
 
 def generate_frames():

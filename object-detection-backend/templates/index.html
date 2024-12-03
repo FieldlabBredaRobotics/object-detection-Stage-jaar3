@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
@@ -11,7 +11,6 @@
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
             <h1 class="text-3xl font-bold mb-4 text-gray-800">Object Detectie Systeem</h1>
             
-            <!-- Controls -->
             <div class="flex space-x-4 mb-6">
                 <button onclick="startDetection()" 
                         class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
@@ -23,8 +22,6 @@
                 </button>
             </div>
 
-            
-            <!-- LLM input plek -->
             <div class="mb-6">
                 <div class="flex flex-col space-y-2">
                     <input type="text" 
@@ -39,11 +36,8 @@
                 <div id="detectedObject" class="mt-2 text-sm text-gray-600"></div>
             </div>
 
-
-            <!-- feedback bericht -->
             <div id="statusMessage" class="mb-6 p-4 rounded hidden"></div>
 
-            <!-- Video -->
             <div class="flex justify-center">
                 <div class="relative bg-black rounded-lg overflow-hidden" style="width: 640px; height: 480px;">
                     <img src="{{ url_for('video_feed') }}" class="absolute inset-0 w-full h-full object-contain" id="videoFeed">
@@ -53,4 +47,4 @@
     </div>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
-</html>
+</html> -->

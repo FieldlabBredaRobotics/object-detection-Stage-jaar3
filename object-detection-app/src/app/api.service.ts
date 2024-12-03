@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ApiService {
-  private apiUrl = 'http://localhost:5000'; // Je back-end URL
+  private apiUrl = 'http://localhost:5000'; //back-end URL
 
   constructor(private http: HttpClient) {}
 
@@ -22,11 +22,14 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/process_natural_language`, { text });
   }
 
-  saveProductMatch(userInput: string, detectedProduct: string, correctProduct: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/save_product_match`, { userInput, detectedProduct, correctProduct });
+  saveProductMatch(detectedProduct: string, correctProduct: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/save_product_match`, { detectedProduct, correctProduct });
   }
 
   getProductStats(): Observable<any> {
     return this.http.get(`${this.apiUrl}/get_product_stats`);
+  }
+  captureAndDetect(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/capture_and_detect`, {});
   }
 }
