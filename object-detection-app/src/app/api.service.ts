@@ -26,10 +26,15 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/save_product_match`, { detectedProduct, correctProduct });
   }
 
+  saveTextMatch(detectedProduct: string, correctProduct: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/save_text_match`, { detectedProduct, correctProduct });
+  }
+
   getProductStats(): Observable<any> {
     return this.http.get(`${this.apiUrl}/get_product_stats`);
   }
+
   captureAndDetect(): Observable<any> {
     return this.http.post(`${this.apiUrl}/capture_and_detect`, {});
   }
-}
+}	

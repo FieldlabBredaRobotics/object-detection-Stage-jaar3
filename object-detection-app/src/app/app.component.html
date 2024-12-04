@@ -1,8 +1,28 @@
+<header role="banner">
+  <nav class="navbar navbar-expand-md">
+    <div class="container">
+      <a class="navbar-img" href="/">
+        <img class="brand-logo" src="Breda-Robotics-logo (1).png" alt="Brand Logo">
+      </a>
+      
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample05" aria-controls="navbarsExample05" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsExample05">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item cta-btn">
+            <a class="nav-link" [routerLink]="['/object-detection']" routerLinkActive="active" *ngIf="isStatisticsPage()">Detection</a>
+            <a class="nav-link" [routerLink]="['/product-stats']" routerLinkActive="active" *ngIf="!isStatisticsPage()">Statistics</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
 
 <div>
   <router-outlet></router-outlet>
 </div>
 
-
-
-<div>Footer</div>
+<!-- <div>Footer</div> -->

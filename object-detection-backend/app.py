@@ -118,6 +118,7 @@ def video_feed():
     return Response(generate_frames(),
                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
+
 @app.route('/process_natural_language', methods=['POST'])
 def process_natural_language():
     if not text_classifier:
@@ -133,13 +134,21 @@ def process_natural_language():
     # Make prediction
     print("Voor prediction")
     text_vectorized = text_classifier['vectorizer'].transform([processed_text])
-    predicted_category = text_classifier['classifier'].predict(text_vectorized)[0]
-    print("input:",data, predicted_category)
-    print ("eind prediction")
-    print(f"Predicted category: {predicted_category}")
+    predicted_probabilities = text_classifier['classifier'].predict_proba(text_vectorized)
+    predicted_category_index = np.argmax(predicted_probabilities)
+    predicted_category = text_classifier['classifier'].classes_[predicted_category_index]
+    confidence = predicted_probabilities[0][predicted_category_index]
+    print("input:", data, predicted_category)
+    print("eind prediction")
+    print(f"Predicted category: {predicted_category} with confidence {confidence}")
     print(f"Synonyms found: {synonyms.get(predicted_category.lower(), [])}")
 
-    # Get synonyms with error handlin\
+    # Set a threshold for confidence
+    confidence_threshold = 0.5
+    if confidence < confidence_threshold:
+        predicted_category = "niks herkend"
+
+    # Get synonyms with error handling
     synonyms_list = get_synonyms(predicted_category)
     print("Uit synonyms lijst: ", synonyms_list)
 
@@ -148,6 +157,7 @@ def process_natural_language():
         "detected_object": predicted_category,
         "synonyms": synonyms_list
     })
+
 
 @app.route('/get_objects')
 def get_objects():
@@ -197,6 +207,21 @@ def save_product_match():
 
     return jsonify({'message': 'Product match saved'}), 200
 
+@app.route('/save_text_match', methods=['POST'])
+def save_text_match():
+    data = request.get_json()
+    detected_product = data['detectedProduct']
+    correct_product = data['correctProduct']
+    
+    # Sla dit op in de database
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO text_matches (detected_product, correct_product) VALUES (?, ?)",
+                   (detected_product, correct_product))
+    conn.commit()
+    conn.close()
+
+    return jsonify({'message': 'Text match saved'}), 200
 
 @app.route('/get_product_stats', methods=['GET'])
 def get_product_stats():

@@ -1,43 +1,20 @@
-// import { Component } from '@angular/core';
-// import { RouterOutlet } from '@angular/router';
-
-// @Component({
-//   selector: 'app-root',
-//   imports: [RouterOutlet],
-//   templateUrl: './app.component.html',
-//   styleUrl: './app.component.css'
-// })
-// export class AppComponent {
-//   title = 'object-detection-app';
-// }
-
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterModule, Router } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, HttpClientModule],
+  imports: [RouterOutlet, HttpClientModule, RouterModule, CommonModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {title = 'object-detection-app';}
+export class AppComponent {
+  title = 'object-detection-app';
 
-// import { Component } from '@angular/core';
-// import { Router, RouterModule } from '@angular/router';
+  constructor(private router: Router) {}
 
-// @Component({
-//   selector: 'app-root',
-//   templateUrl: './app.component.html',
-//   styleUrls: ['./app.component.css'],
-//   standalone: true,
-//   imports: [RouterModule]
-// })
-// export class AppComponent {
-//   constructor(private router: Router) {}
-
-//   startDemo() {
-//     console.log(this.router.config);
-//     this.router.navigate(['/object-detection']);
-//   }
-// }
+  isStatisticsPage(): boolean {
+    return this.router.url === '/product-stats';
+  }
+}

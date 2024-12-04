@@ -12,30 +12,31 @@
     <div class="row">
       <div class="col-md-6 camera-container">
         <div class="my-4">
-          <h4>Live Camera Feed</h4>
           <img [src]="cameraFeedUrl" class="img-fluid camera-feed" alt="Camera Feed">
         </div>
       </div>
       <div class="col-md-6">
-        <div class="my-4 d-flex justify-content-center">
+        <div class="my-4 d-flex justify-content-start align-items-start">
           <button *ngIf="!detectionRunning" class="btn btn-success btn-lg mx-2" (click)="startDetection()">Start Detection</button>
           <button *ngIf="detectionRunning" class="btn btn-danger btn-lg mx-2" (click)="stopDetection()">Stop Detection</button>
         </div>
-        <h5 class="form-group">Zoek naar een product in de camera beeld.</h5>
-        <div class="form-group d-flex justify-content-center">
-          <input 
-            [(ngModel)]="userInput" 
-            class="form-control input-short" 
-            placeholder="Ik wil graag mijn telefoon detecteren..."
-          >
-          <button class="btn btn-primary ml-2" (click)="processNaturalLanguage()">
-            Process Description
-          </button>
+        <div class="container-fluid">
+          <h5 class="form-group">Zoek naar een product in beeld.</h5>
+          <div class="form-group d-flex justify-content-center">
+            <input 
+              [(ngModel)]="userInput" 
+              class="form-control input-short" 
+              placeholder="Ik wil graag mijn telefoon detecteren..."
+            >
+            <button class="btn btn-primary ml-2" (click)="processNaturalLanguage()">
+              Zoek
+            </button>
+          </div>
+          <div *ngIf="detectedObject" class="alert alert-info">
+            <p>Opzoek naar "{{ detectedObject }}" in the Life Camera Feed</p>
+          </div>
         </div>
-        <div *ngIf="detectedObject" class="alert alert-info">
-          <p>Opzoek naar "{{ detectedObject }}" in the Life Camera Feed</p>
-        </div>
-        <div class="my-4 feedback-container"> 
+        <div *ngIf="showFeedbackSection && detectedClasses.length > 0" class="my-4 feedback-container"> 
           <h4>Geef feedback aan de Object Detectie AI</h4> 
           <h6>Hebben we jouw producten correct herkent?</h6>
           <div class="feedback-row">
@@ -43,16 +44,43 @@
               <label>{{ objectClass }}</label>
               <div class="btn-group">
                 <button class="btn btn-outline-success" (click)="giveFeedback(objectClass, true)">Ja</button>
-                <button class="btn btn-outline-danger" (click)="showDropdown(objectClass)">Nee</button>
+                <button class="btn btn-outline-danger" (click)="showDropdown = true">Nee</button>
               </div>
               <div *ngIf="feedback[objectClass] === false" class="dropdown">
                 <select [(ngModel)]="correctClass[objectClass]" class="form-control">
                   <option *ngFor="let option of objectClasses" [value]="option">{{ option }}</option>
                 </select>
-                <button class="btn btn-warning mt-2" (click)="submitFeedback(objectClass)">Submit</button>
+                <button class="btn btn-warning mt-2" (click)="submitFeedback()">Submit</button>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" tabindex="-1" role="dialog" [ngStyle]="{'display': displayStyle}">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Tekst AI Detectie</h4>
+        </div>
+        <div class="modal-body">
+          <p>Heb ik het product "{{ detectedObject }}" goed herkend?</p>
+          <div class="btn-group">
+            <button class="btn btn-primary" (click)="handleFeedback(true)">Ja</button>
+            <button class="btn btn-secondary" (click)="handleFeedback(false)">Nee</button>
+          </div>
+          <div *ngIf="showDropdown">
+            <p>Wat is het juiste product?</p>
+            <select [(ngModel)]="selectedClass" class="form-control">
+              <option *ngFor="let option of objectClasses" [value]="option">{{ option }}</option>
+            </select>
+            <button class="btn-aa mt-2" (click)="submitFeedback()">Submit</button>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" (click)="closePopup()">Sluit</button>
         </div>
       </div>
     </div>

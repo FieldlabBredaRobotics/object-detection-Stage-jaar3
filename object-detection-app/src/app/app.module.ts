@@ -26,6 +26,7 @@ import { StartScreenComponent } from './start-screen/start-screen.component';
     BrowserModule,
     AppRoutesModule, 
     RouterModule,
+    RouterModule.forRoot([]),
    AppRoutesModule,
     HttpClientModule,
   ],

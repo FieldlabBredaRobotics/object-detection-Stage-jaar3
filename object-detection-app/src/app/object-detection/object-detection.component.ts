@@ -20,7 +20,11 @@ export class ObjectDetectionComponent {
   feedback: { [key: string]: boolean | null } = {};
   correctClass: { [key: string]: string } = {};
   detectionRunning: boolean = false;
-  detectedClasses: string[] = []; // Voeg deze regel toe
+  detectedClasses: string[] = [];
+  showFeedbackSection: boolean = false;
+  displayStyle = "none";
+  showDropdown: boolean = false;
+  selectedClass: string = '';
 
   constructor(private apiService: ApiService) {
     this.objectClasses.forEach(objectClass => {
@@ -29,37 +33,38 @@ export class ObjectDetectionComponent {
     });
   }
 
+  openPopup() { 
+    this.displayStyle = "block"; 
+  } 
+  closePopup() { 
+    this.displayStyle = "none"; 
+    this.showDropdown = false;
+  } 
+
   startDetection() {
     this.apiService.startDetection().subscribe(response => {
       console.log(response);
-      this.detectionRunning = true; // Zet de status op true
+      this.detectionRunning = true;
     });
   }
 
   stopDetection() {
     this.apiService.stopDetection().subscribe(response => {
       console.log(response);
-      this.detectionRunning = false; // Zet de status op false
+      this.detectionRunning = false;
     });
   }
 
   processNaturalLanguage() {
-    // Toon de pop-up direct
-    const correct = confirm(`Heb ik het product "${this.userInput}" goed herkend?`);
-    if (!correct) {
-      const correctProduct = prompt('Wat is het juiste product?') || '';
-      this.apiService.saveProductMatch(this.userInput, correctProduct).subscribe();
-    }
-  
-    // Voer de objectdetectie en database-updates op de achtergrond uit
     this.apiService.captureAndDetect().subscribe(detectionResponse => {
       if (detectionResponse.status === 'success') {
         console.log('Detected objects:', detectionResponse.detected_objects);
-        this.detectedClasses = Object.keys(detectionResponse.detected_objects); // Sla de gedetecteerde objecten op
+        this.detectedClasses = Object.keys(detectionResponse.detected_objects);
+        this.showFeedbackSection = true;
         this.apiService.processNaturalLanguage(this.userInput).subscribe(response => {
           this.detectedObject = response.detected_object;
           if (response.status === 'success') {
-            console.log(`Detected object: ${this.detectedObject}`);
+            this.openPopup();
           }
         });
       } else {
@@ -68,29 +73,30 @@ export class ObjectDetectionComponent {
     });
   }
 
+  handleFeedback(isCorrect: boolean) {
+    if (isCorrect) {
+      this.apiService.saveTextMatch(this.detectedObject, this.detectedObject).subscribe();
+      this.closePopup();
+    } else {
+      this.showDropdown = true;
+    }
+  }
+
+  submitFeedback() {
+    this.apiService.saveTextMatch(this.detectedObject, this.selectedClass).subscribe(() => {
+      this.closePopup();
+    });
+  }
+
   giveFeedback(objectClass: string, isCorrect: boolean) {
     this.feedback[objectClass] = isCorrect;
     if (isCorrect) {
       alert('Dankjewel voor je feedback!');
-      this.detectedClasses = this.detectedClasses.filter(cls => cls !== objectClass); // Verwijder het object uit de feedback container
+      this.apiService.saveProductMatch(objectClass, objectClass).subscribe(() => {
+        this.detectedClasses = this.detectedClasses.filter(cls => cls !== objectClass);
+      });
+    } else {
+      this.showDropdown = true;
     }
-  }
-
-  showDropdown(objectClass: string) {
-    this.objectClasses.forEach(cls => {
-      if (cls !== objectClass) {
-        this.feedback[cls] = null;
-      }
-    });
-    this.feedback[objectClass] = false;
-  }
-
-  submitFeedback(objectClass: string) {
-    const correctProduct = this.correctClass[objectClass];
-    this.apiService.saveProductMatch(this.userInput, correctProduct).subscribe(() => {
-      alert('Dankjewel voor je feedback!');
-      this.feedback[objectClass] = null;
-      this.detectedClasses = this.detectedClasses.filter(cls => cls !== objectClass); // Verwijder het object uit de feedback container
-    });
   }
 }
