@@ -46,12 +46,23 @@ body {
   padding-bottom: 25px;
 }
 
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 .feedback-container {
   width: 100%;
   background-color: white;
   padding: 10px;
-  margin-right: 30px;
-  padding-bottom: 10%; /* Add margin to the right */
+  margin-top: 10px; /* Add margin to the top */
+  animation: slideDown 0.5s ease-out; /* Apply the slide down animation */
 }
 
 .feedback-row {
@@ -163,16 +174,23 @@ body {
   margin: 0 5px;
 }
 
+.modal-body .btn-group .btn-primary {
+  background-color: rgb(111, 209, 111); /* Background color of the 'Ja' button */
+  border-color: green; /* Border color of the 'Ja' button */
+  color: white;
+}
+
 .modal-body .btn-group .btn-secondary {
   background-color: lightgray;
   border-color: lightgray;
   color: black; /* Text color of the 'Nee' button */
 }
 
-.modal-body .btn-group .btn-aa {
-  background-color: lightgreen; /* Background color of the 'Submit' button */
-  border-color: lightgreen;
+.modal-body .btn-outline-submit {
+  background-color: rgb(116, 240, 116); 
+  border-color: green;
   color: white;
+  
 }
 
 input::placeholder {

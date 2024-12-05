@@ -185,10 +185,10 @@ def stop_detection():
         return jsonify({"status": "success", "message": "Object detection stopped"})
     return jsonify({"status": "error", "message": "Object detection already stopped"})
 
-@app.route('/set_target/<object_name>')
+@app.route('/set_target/<object_name>', methods=['POST'])
 def set_target(object_name):
     global target_object
-    target_object = object_name
+    target_object = object_name.lower()
     return jsonify({"status": "success", "message": f"Target object set to: {object_name}"})
 
 @app.route('/save_product_match', methods=['POST'])
@@ -271,7 +271,6 @@ def capture_and_detect():
     return jsonify({"status": "success", "detected_objects": detected_objects})
 
 
-
 def generate_frames():
     global output_frame, detection_running, target_object
 
@@ -301,7 +300,7 @@ def generate_frames():
                     class_name = results[0].names[class_id].lower()
                     confidence = float(detection[4])
 
-                    if class_name == target_object.lower():
+                    if class_name == target_object:
                         x1, y1, x2, y2 = map(int, detection[:4])
                         cv2.rectangle(annotated_frame, (x1, y1), (x2, y2), (0, 255, 0), 3)
                         label = f"Target: {class_name} ({confidence:.2f})"

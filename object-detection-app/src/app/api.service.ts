@@ -37,4 +37,8 @@ export class ApiService {
   captureAndDetect(): Observable<any> {
     return this.http.post(`${this.apiUrl}/capture_and_detect`, {});
   }
+
+  setTarget(objectName: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/set_target/${objectName}`, {});
+  }
 }	
