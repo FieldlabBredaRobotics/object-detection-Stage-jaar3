@@ -35,6 +35,10 @@ nlp = spacy.load("nl_core_news_sm")
 # Zorg ervoor dat het pad naar de database correct is
 db_path = os.path.join(os.path.dirname(__file__), 'database', 'database.db')
 
+
+allowed_object_classes = ['telefoon', 'portemonnee', 'pen', 'kam', 'horloge', 'sleutels', 'bril', 'auto sleutels']
+
+
 def get_db_connection():
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
@@ -146,7 +150,7 @@ def process_natural_language():
     # Set a threshold for confidence
     confidence_threshold = 0.5
     if confidence < confidence_threshold:
-        predicted_category = "niks herkend"
+        predicted_category = "niks"
 
     # Get synonyms with error handling
     synonyms_list = get_synonyms(predicted_category)
@@ -191,38 +195,76 @@ def set_target(object_name):
     target_object = object_name.lower()
     return jsonify({"status": "success", "message": f"Target object set to: {object_name}"})
 
+# @app.route('/save_product_match', methods=['POST'])
+# def save_product_match():
+#     data = request.get_json()
+#     detected_product = data['detectedProduct']
+#     correct_product = data['correctProduct']
+    
+#     # Sla dit op in de database
+#     conn = get_db_connection()
+#     cursor = conn.cursor()
+#     cursor.execute("INSERT INTO product_matches (detected_product, correct_product) VALUES (?, ?)",
+#                    (detected_product, correct_product))
+#     conn.commit()
+#     conn.close()
+
+#     return jsonify({'message': 'Product match saved'}), 200
+
+# @app.route('/save_text_match', methods=['POST'])
+# def save_text_match():
+#     data = request.get_json()
+#     detected_product = data['detectedProduct']
+#     correct_product = data['correctProduct']
+    
+#     # Sla dit op in de database
+#     conn = get_db_connection()
+#     cursor = conn.cursor()
+#     cursor.execute("INSERT INTO text_matches (detected_product, correct_product) VALUES (?, ?)",
+#                    (detected_product, correct_product))
+#     conn.commit()
+#     conn.close()
+
+#     return jsonify({'message': 'Text match saved'}), 200
+
 @app.route('/save_product_match', methods=['POST'])
 def save_product_match():
     data = request.get_json()
-    detected_product = data['detectedProduct']
-    correct_product = data['correctProduct']
+    detected_product = data['detectedProduct'].lower()
+    correct_product = data['correctProduct'].lower()
     
-    # Sla dit op in de database
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO product_matches (detected_product, correct_product) VALUES (?, ?)",
-                   (detected_product, correct_product))
-    conn.commit()
-    conn.close()
+    if detected_product == "niks" and correct_product == "niks":
+        return jsonify({"status": "error", "message": "Both detected and correct product are 'niks'. Not saving to database."})
 
-    return jsonify({'message': 'Product match saved'}), 200
+    if detected_product in allowed_object_classes or correct_product in allowed_object_classes:
+        conn = get_db_connection()
+        conn.execute('INSERT INTO product_matches (detected_product, correct_product) VALUES (?, ?)',
+                     (detected_product, correct_product))
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success", "message": "Product match saved"})
+    else:
+        return jsonify({"status": "error", "message": "Detected product not allowed"})
 
 @app.route('/save_text_match', methods=['POST'])
 def save_text_match():
     data = request.get_json()
-    detected_product = data['detectedProduct']
-    correct_product = data['correctProduct']
+    detected_product = data['detectedProduct'].lower()
+    correct_product = data['correctProduct'].lower()
     
-    # Sla dit op in de database
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO text_matches (detected_product, correct_product) VALUES (?, ?)",
-                   (detected_product, correct_product))
-    conn.commit()
-    conn.close()
+    if detected_product == "niks" and correct_product == "niks":
+        return jsonify({"status": "error", "message": "Both detected and correct product are 'niks'. Not saving to database."})
 
-    return jsonify({'message': 'Text match saved'}), 200
-
+    if detected_product in allowed_object_classes or correct_product in allowed_object_classes:
+        conn = get_db_connection()
+        conn.execute('INSERT INTO text_matches (detected_product, correct_product) VALUES (?, ?)',
+                     (detected_product, correct_product))
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success", "message": "Text match saved"})
+    else:
+        return jsonify({"status": "error", "message": "Detected product not allowed"})
+    
 @app.route('/get_product_stats', methods=['GET'])
 def get_product_stats():
     conn = get_db_connection()
