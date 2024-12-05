@@ -37,7 +37,7 @@
           </div>
           <div *ngIf="showFeedbackSection && detectedClasses.length > 0" class="my-4 feedback-container"> 
             <h4>Geef feedback aan de Object Detectie AI</h4> 
-            <h6>Hebben we jouw producten correct herkent?</h6>
+            <h6>Hebben we jouw producten correct herkend?</h6>
             <div class="feedback-row">
               <div class="feedback-col" *ngFor="let objectClass of detectedClasses">
                 <label>{{ objectClass }}</label>
@@ -46,7 +46,7 @@
                   <button class="btn btn-outline-danger" (click)="giveFeedback(objectClass, false)">Nee</button>
                 </div>
                 <div *ngIf="showDropdownFor[objectClass]">
-                  <p>Wat is het juiste product?</p>
+                  <p>Wat is het wel?</p>
                   <select #selectedClass [(ngModel)]="correctClass[objectClass]" class="form-control">
                     <option *ngFor="let option of objectClasses" [value]="option">{{ option }}</option>
                   </select>
@@ -67,7 +67,7 @@
           <h4 class="modal-title">Tekst AI Detectie</h4>
         </div>
         <div class="modal-body">
-          <p>Ben je opzoek naar "{{ detectedObject }}"?</p>
+          <p>Ik ga opzoek naar "{{ detectedObject }}", is dat correct?</p>
           <div class="btn-group">
             <button class="btn btn-primary" (click)="handleFeedback(true)">Ja</button>
             <button class="btn btn-secondary" (click)="handleFeedback(false)">Nee</button>

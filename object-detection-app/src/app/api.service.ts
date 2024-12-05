@@ -41,4 +41,19 @@ export class ApiService {
   setTarget(objectName: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/set_target/${objectName}`, {});
   }
+
+  getDetectionStatus(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_detection_status`);
+  }
+  getObjectDetectionStats(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_object_detection_stats`);
+  }
+  
+  getProductDetectionAccuracy(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_product_detection_accuracy`);
+  }
+  
+  getTextDetectionAccuracy(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_text_detection_accuracy`);
+  }
 }	

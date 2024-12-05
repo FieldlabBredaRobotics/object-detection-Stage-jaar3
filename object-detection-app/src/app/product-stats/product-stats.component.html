@@ -1,7 +1,28 @@
-<!-- <canvas baseChart
-        [datasets]="stats"
-        [labels]="['Product A', 'Product B', 'Product C']"
-        [options]="{ responsive: true }"
-        [chartType]="'bar'">
-</canvas> -->
-<div>Product stats</div>
+<div>
+        <apx-chart
+          *ngIf="objectDetectionChartOptions.series.length > 0"
+          [series]="objectDetectionChartOptions.series"
+          [chart]="objectDetectionChartOptions.chart"
+          [title]="objectDetectionChartOptions.title"
+          [xaxis]="objectDetectionChartOptions.xaxis"
+          [dataLabels]="objectDetectionChartOptions.dataLabels"
+        ></apx-chart>
+      
+        <apx-chart
+          *ngIf="productDetectionAccuracyChartOptions.series.length > 0"
+          [series]="productDetectionAccuracyChartOptions.series"
+          [chart]="productDetectionAccuracyChartOptions.chart"
+          [title]="productDetectionAccuracyChartOptions.title"
+          [xaxis]="productDetectionAccuracyChartOptions.xaxis"
+          [dataLabels]="productDetectionAccuracyChartOptions.dataLabels"
+        ></apx-chart>
+      
+        <apx-chart
+          *ngIf="textDetectionAccuracyChartOptions.series.length > 0"
+          [series]="textDetectionAccuracyChartOptions.series"
+          [chart]="textDetectionAccuracyChartOptions.chart"
+          [title]="textDetectionAccuracyChartOptions.title"
+          [xaxis]="textDetectionAccuracyChartOptions.xaxis"
+          [dataLabels]="textDetectionAccuracyChartOptions.dataLabels"
+        ></apx-chart>
+      </div>

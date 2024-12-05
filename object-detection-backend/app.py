@@ -189,43 +189,69 @@ def stop_detection():
         return jsonify({"status": "success", "message": "Object detection stopped"})
     return jsonify({"status": "error", "message": "Object detection already stopped"})
 
+@app.route('/get_detection_status', methods=['GET'])
+def get_detection_status():
+    global detection_running
+    return jsonify({"status": "success", "detection_running": detection_running}) 
+
 @app.route('/set_target/<object_name>', methods=['POST'])
 def set_target(object_name):
     global target_object
     target_object = object_name.lower()
     return jsonify({"status": "success", "message": f"Target object set to: {object_name}"})
 
-# @app.route('/save_product_match', methods=['POST'])
-# def save_product_match():
-#     data = request.get_json()
-#     detected_product = data['detectedProduct']
-#     correct_product = data['correctProduct']
-    
-#     # Sla dit op in de database
-#     conn = get_db_connection()
-#     cursor = conn.cursor()
-#     cursor.execute("INSERT INTO product_matches (detected_product, correct_product) VALUES (?, ?)",
-#                    (detected_product, correct_product))
-#     conn.commit()
-#     conn.close()
+@app.route('/get_object_detection_stats', methods=['GET'])
+def get_object_detection_stats():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM count_detected WHERE id = 1")
+    stats = cursor.fetchone()
+    conn.close()
+    return jsonify(dict(stats))
 
-#     return jsonify({'message': 'Product match saved'}), 200
+@app.route('/get_product_detection_accuracy', methods=['GET'])
+def get_product_detection_accuracy():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT detected_product, 
+               SUM(CASE WHEN detected_product = correct_product THEN 1 ELSE 0 END) AS correct_count,
+               COUNT(*) AS total_count
+        FROM product_matches
+        GROUP BY detected_product
+    """)
+    stats = cursor.fetchall()
+    conn.close()
+    accuracy_stats = {}
+    for row in stats:
+        detected_product = row['detected_product']
+        correct_count = row['correct_count']
+        total_count = row['total_count']
+        accuracy = (correct_count / total_count) * 100 if total_count > 0 else 0
+        accuracy_stats[detected_product] = accuracy
+    return jsonify(accuracy_stats)
 
-# @app.route('/save_text_match', methods=['POST'])
-# def save_text_match():
-#     data = request.get_json()
-#     detected_product = data['detectedProduct']
-#     correct_product = data['correctProduct']
-    
-#     # Sla dit op in de database
-#     conn = get_db_connection()
-#     cursor = conn.cursor()
-#     cursor.execute("INSERT INTO text_matches (detected_product, correct_product) VALUES (?, ?)",
-#                    (detected_product, correct_product))
-#     conn.commit()
-#     conn.close()
-
-#     return jsonify({'message': 'Text match saved'}), 200
+@app.route('/get_text_detection_accuracy', methods=['GET'])
+def get_text_detection_accuracy():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT detected_product, 
+               SUM(CASE WHEN detected_product = correct_product THEN 1 ELSE 0 END) AS correct_count,
+               COUNT(*) AS total_count
+        FROM text_matches
+        GROUP BY detected_product
+    """)
+    stats = cursor.fetchall()
+    conn.close()
+    accuracy_stats = {}
+    for row in stats:
+        detected_product = row['detected_product']
+        correct_count = row['correct_count']
+        total_count = row['total_count']
+        accuracy = (correct_count / total_count) * 100 if total_count > 0 else 0
+        accuracy_stats[detected_product] = accuracy
+    return jsonify(accuracy_stats)
 
 @app.route('/save_product_match', methods=['POST'])
 def save_product_match():

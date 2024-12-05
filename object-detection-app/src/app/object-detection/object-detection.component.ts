@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
 import { RouterOutlet } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
@@ -12,7 +12,7 @@ import { FormsModule } from '@angular/forms';
   imports: [HttpClientModule, CommonModule, FormsModule],
   standalone: true,
 })
-export class ObjectDetectionComponent {
+export class ObjectDetectionComponent implements OnInit {
   detectedObject: string = '';
   userInput: string = '';
   cameraFeedUrl: string = 'http://localhost:5000/video_feed';
@@ -30,6 +30,14 @@ export class ObjectDetectionComponent {
     this.objectClasses.forEach(objectClass => {
       this.showDropdownFor[objectClass] = false;
       this.correctClass[objectClass] = '';
+    });
+  }
+
+  ngOnInit() {
+    this.apiService.getDetectionStatus().subscribe(response => {
+      if (response.status === 'success') {
+        this.detectionRunning = response.detection_running;
+      }
     });
   }
 
