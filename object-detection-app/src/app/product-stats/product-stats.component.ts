@@ -5,9 +5,12 @@ import {
   ApexAxisChartSeries,
   ApexChart,
   ApexXAxis,
+  ApexYAxis,
   ApexDataLabels,
   ApexTitleSubtitle,
-  NgApexchartsModule
+  ApexPlotOptions,
+  NgApexchartsModule,
+  ApexTooltip
 } from "ng-apexcharts";
 
 @Component({
@@ -18,12 +21,15 @@ import {
   standalone: true,
 })
 export class ProductStatsComponent implements OnInit {
-  objectDetectionChartOptions: {
+  chartOptions: {
     series: ApexAxisChartSeries;
     chart: ApexChart;
     xaxis: ApexXAxis;
+    yaxis: ApexYAxis;
     dataLabels: ApexDataLabels;
     title: ApexTitleSubtitle;
+    plotOptions: ApexPlotOptions;
+    tooltip: ApexTooltip;
   } = {
     series: [],
     chart: {
@@ -33,68 +39,74 @@ export class ProductStatsComponent implements OnInit {
     xaxis: {
       categories: []
     },
-    dataLabels: {
-      enabled: true
-    },
-    title: {
-      text: "Object Detection Count"
-    }
-  };
-
-  productDetectionAccuracyChartOptions: {
-    series: ApexAxisChartSeries;
-    chart: ApexChart;
-    xaxis: ApexXAxis;
-    dataLabels: ApexDataLabels;
-    title: ApexTitleSubtitle;
-  } = {
-    series: [],
-    chart: {
-      type: "bar",
-      height: 350
-    },
-    xaxis: {
-      categories: []
+    yaxis: {
+      min: 0,
+      max: 160,
+      tickAmount: 8,
+      labels: {
+        formatter: function (val: number) {
+          return val.toFixed(0);
+        }
+      }
     },
     dataLabels: {
-      enabled: true
+      enabled: true,
+      formatter: function (val: number, opts: any) {
+        const confidence = opts.w.config.series[opts.seriesIndex].data[opts.dataPointIndex].confidence;
+        return `${val.toFixed(0)} (${confidence}%)`;
+      },
+      style: {
+        colors: ['#000']
+      }
     },
     title: {
-      text: "Product Detection Accuracy"
-    }
-  };
-
-  textDetectionAccuracyChartOptions: {
-    series: ApexAxisChartSeries;
-    chart: ApexChart;
-    xaxis: ApexXAxis;
-    dataLabels: ApexDataLabels;
-    title: ApexTitleSubtitle;
-  } = {
-    series: [],
-    chart: {
-      type: "bar",
-      height: 350
+      text: "Object Detection Stats"
     },
-    xaxis: {
-      categories: []
+    plotOptions: {
+      bar: {
+        distributed: true,
+        dataLabels: {
+          position: 'top'
+        },
+        colors: {
+          ranges: [
+            {
+              from: 0,
+              to: 100,
+              color: '#29a7a8'
+            },
+            {
+              from: 101,
+              to: 200,
+              color: '#ff4560'
+            }
+          ]
+        }
+      }
     },
-    dataLabels: {
-      enabled: true
-    },
-    title: {
-      text: "Text Detection Accuracy"
+    tooltip: {
+      y: {
+        formatter: function (val: number, opts: any) {
+          const confidence = opts.w.config.series[opts.seriesIndex].data[opts.dataPointIndex].confidence;
+          return `${val.toFixed(0)} (Confidence: ${confidence}%)`;
+        }
+      }
     }
   };
 
   constructor(private apiService: ApiService) {}
 
   ngOnInit() {
-    this.apiService.getObjectDetectionStats().subscribe(stats => {
-      const categories = Object.keys(stats);
-      const data = Object.values(stats) as number[];
-      this.objectDetectionChartOptions = {
-        ...this.objectDetectionChartOptions,
+    this.apiService.getObjectDetectionStats().subscribe((stats: any[]) => {
+      const categories = stats.map((stat: any) => stat.name);
+      const data = stats.map((stat: any) => ({
+        x: stat.name,
+        y: stat.count,
+        confidence: stat.confidence
+      }));
+
+      this.chartOptions = {
+        ...this.chartOptions,
         series: [
           {
             name: "Object Detection Count",
@@ -103,40 +115,10 @@ export class ProductStatsComponent implements OnInit {
         ],
         xaxis: {
           categories: categories
-        }
-      };
-    });
-
-    this.apiService.getProductDetectionAccuracy().subscribe(stats => {
-      const categories = Object.keys(stats);
-      const data = Object.values(stats) as number[];
-      this.productDetectionAccuracyChartOptions = {
-        ...this.productDetectionAccuracyChartOptions,
-        series: [
-          {
-            name: "Product Detection Accuracy",
-            data: data
-          }
-        ],
-        xaxis: {
-          categories: categories
-        }
-      };
-    });
-
-    this.apiService.getTextDetectionAccuracy().subscribe(stats => {
-      const categories = Object.keys(stats);
-      const data = Object.values(stats) as number[];
-      this.textDetectionAccuracyChartOptions = {
-        ...this.textDetectionAccuracyChartOptions,
-        series: [
-          {
-            name: "Text Detection Accuracy",
-            data: data
-          }
-        ],
-        xaxis: {
-          categories: categories
+        },
+        yaxis: {
+          ...this.chartOptions.yaxis,
+          max: Math.ceil(Math.max(...data.map(d => d.y)) / 20) * 20
         }
       };
     });

@@ -86,10 +86,9 @@ export class ObjectDetectionComponent implements OnInit {
 
   handleFeedback(isCorrect: boolean) {
     if (isCorrect) {
-      if (!(this.detectedObject === "niks" && this.detectedObject === "niks")) {
-        this.apiService.saveTextMatch(this.detectedObject, this.detectedObject).subscribe();
-      }
-      this.closePopup();
+      this.apiService.saveTextMatch(this.detectedObject, this.detectedObject).subscribe(() => {
+        this.closePopup();
+      });
     } else {
       this.showDropdown = true;
     }
@@ -97,14 +96,12 @@ export class ObjectDetectionComponent implements OnInit {
 
   submitFeedback() {
     if (this.selectedClass) {
-      if (!(this.detectedObject === "niks" && this.selectedClass === "niks")) {
-        this.apiService.saveTextMatch(this.detectedObject, this.selectedClass).subscribe(() => {
-          this.detectedObject = this.selectedClass; 
-          this.apiService.setTarget(this.selectedClass).subscribe(() => {
-            this.closePopup();
-          });
+      this.apiService.saveTextMatch(this.detectedObject, this.selectedClass).subscribe(() => {
+        this.detectedObject = this.selectedClass; 
+        this.apiService.setTarget(this.selectedClass).subscribe(() => {
+          this.closePopup();
         });
-      }
+      });
     } else {
       alert('Selecteer een juiste productklasse.');
     }
@@ -113,12 +110,10 @@ export class ObjectDetectionComponent implements OnInit {
   giveFeedback(objectClass: string, isCorrect: boolean) {
     if (isCorrect) {
       alert('Dankjewel voor je feedback!');
-      if (!(objectClass === "niks" && objectClass === "niks")) {
-        this.apiService.saveProductMatch(objectClass, objectClass).subscribe(() => {
-          this.detectedClasses = this.detectedClasses.filter(cls => cls !== objectClass);
-          this.updateFeedbackSectionVisibility();
-        });
-      }
+      this.apiService.saveProductMatch(objectClass, objectClass).subscribe(() => {
+        this.detectedClasses = this.detectedClasses.filter(cls => cls !== objectClass);
+        this.updateFeedbackSectionVisibility();
+      });
     } else {
       this.showDropdownFor[objectClass] = true;
     }
@@ -126,12 +121,10 @@ export class ObjectDetectionComponent implements OnInit {
 
   submitFeedbackForObject(objectClass: string, selectedClass: string) {
     if (selectedClass) {
-      if (!(objectClass === "niks" && selectedClass === "niks")) {
-        this.apiService.saveProductMatch(objectClass, selectedClass).subscribe(() => {
-          this.detectedClasses = this.detectedClasses.filter(cls => cls !== objectClass);
-          this.updateFeedbackSectionVisibility();
-        });
-      }
+      this.apiService.saveProductMatch(objectClass, selectedClass).subscribe(() => {
+        this.detectedClasses = this.detectedClasses.filter(cls => cls !== objectClass);
+        this.updateFeedbackSectionVisibility();
+      });
     } else {
       alert('Selecteer een juiste productklasse.');
     }

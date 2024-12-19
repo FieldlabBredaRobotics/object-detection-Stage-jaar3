@@ -70,7 +70,7 @@ def get_synonyms(user_input):
 
 def init_camera():
     global camera
-    camera = cv2.VideoCapture(0)
+    camera = cv2.VideoCapture(0) # hier camera veranderene <<<<<<<<<<<<<<<<<<<---------------------------
     if not camera.isOpened():
         raise RuntimeError("Could not open camera.")
 
@@ -86,15 +86,16 @@ def init_yolo_model():
 
 def init_text_classifier():
     global text_classifier
-    model_path = os.path.join('models', 'tekstAI.pkl')
+    model_path = 'tekstAI.pkl'
     if not os.path.exists(model_path):
         raise RuntimeError("Text classification model not found.")
     
-    classifier_model = joblib.load(model_path)
+    vectorizer, classifier = joblib.load(model_path)
     text_classifier = {
-        "vectorizer": classifier_model.vectorizer,
-        "classifier": classifier_model.classifier
+        "vectorizer": vectorizer,
+        "classifier": classifier
     }
+    print("Text classifier model loaded.")
 
 def preprocess_text(text):
     try:
@@ -126,42 +127,38 @@ def video_feed():
 @app.route('/process_natural_language', methods=['POST'])
 def process_natural_language():
     if not text_classifier:
-        return jsonify({"status": "error", "message": "Text classifier model not loaded"}), 500
+        return jsonify({"status": "error", "message": "Text classifier not initialized"})
 
     data = request.json
     if not data or 'text' not in data:
-        return jsonify({"status": "error", "message": "No text received"}), 400
+        return jsonify({"status": "error", "message": "No text provided"})
 
     input_text = data['text']
     processed_text = preprocess_text(input_text)
     
     # Make prediction
-    print("Voor prediction")
     text_vectorized = text_classifier['vectorizer'].transform([processed_text])
     predicted_probabilities = text_classifier['classifier'].predict_proba(text_vectorized)
     predicted_category_index = np.argmax(predicted_probabilities)
     predicted_category = text_classifier['classifier'].classes_[predicted_category_index]
     confidence = predicted_probabilities[0][predicted_category_index]
-    print("input:", data, predicted_category)
-    print("eind prediction")
-    print(f"Predicted category: {predicted_category} with confidence {confidence}")
-    print(f"Synonyms found: {synonyms.get(predicted_category.lower(), [])}")
-
-    # Set a threshold for confidence
-    confidence_threshold = 0.5
-    if confidence < confidence_threshold:
-        predicted_category = "niks"
 
     # Get synonyms with error handling
     synonyms_list = get_synonyms(predicted_category)
-    print("Uit synonyms lijst: ", synonyms_list)
+       
+    # Debug logging
+    print(f"Input text: {input_text}")
+    print(f"Processed text: {processed_text}") 
+    print(f"Raw probabilities: {predicted_probabilities}")
+    print(f"Selected category: {predicted_category}")
+    print(f"Confidence: {confidence}")
+    print(f"Synonyms: {synonyms_list}")
 
     return jsonify({
         "status": "success",
         "detected_object": predicted_category,
         "synonyms": synonyms_list
     })
-
 
 @app.route('/get_objects')
 def get_objects():
@@ -204,10 +201,60 @@ def set_target(object_name):
 def get_object_detection_stats():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM count_detected WHERE id = 1")
-    stats = cursor.fetchone()
+
+    # Get all columns except id from count_detected
+    cursor.execute('''
+        SELECT carkeys, wallet, comb, glasses, keys, 
+               mobile_phone, pen, watch 
+        FROM count_detected 
+        WHERE id = 1
+    ''')
+    row = cursor.fetchone()
+    
+    # Convert row data into column-count pairs
+    if row:
+        counts = []
+        column_names = ['carkeys', 'wallet', 'comb', 'glasses', 'keys', 
+                       'mobile_phone', 'pen', 'watch']
+        for idx, count in enumerate(row):
+            counts.append({
+                'object_class': column_names[idx],
+                'count': count
+            })
+    else:
+        counts = []
+
+    # Get matches from product_matches table
+    cursor.execute('SELECT detected_product, correct_product FROM product_matches')
+    matches = cursor.fetchall()
+
+    # Calculate confidence percentages
+    total_matches = {}
+    correct_matches = {}
+    for match in matches:
+        detected = match[0]  # Using index since we're not using Row factory
+        correct = match[1]
+        if detected not in total_matches:
+            total_matches[detected] = 0
+            correct_matches[detected] = 0
+        total_matches[detected] += 1
+        if detected == correct:
+            correct_matches[detected] += 1
+
+    stats = []
+    for count in counts:
+        object_class = count['object_class']
+        count_value = count['count']
+        confidence = (correct_matches.get(object_class, 0) / total_matches.get(object_class, 1)) * 100 if total_matches.get(object_class, 0) > 0 else 0
+        stats.append({
+            'name': object_class,
+            'count': count_value,
+            'confidence': round(confidence, 2)
+        })
+
     conn.close()
-    return jsonify(dict(stats))
+    return jsonify(stats)
+
 
 @app.route('/get_product_detection_accuracy', methods=['GET'])
 def get_product_detection_accuracy():
@@ -258,19 +305,16 @@ def save_product_match():
     data = request.get_json()
     detected_product = data['detectedProduct'].lower()
     correct_product = data['correctProduct'].lower()
-    
+
     if detected_product == "niks" and correct_product == "niks":
         return jsonify({"status": "error", "message": "Both detected and correct product are 'niks'. Not saving to database."})
 
-    if detected_product in allowed_object_classes or correct_product in allowed_object_classes:
-        conn = get_db_connection()
-        conn.execute('INSERT INTO product_matches (detected_product, correct_product) VALUES (?, ?)',
-                     (detected_product, correct_product))
-        conn.commit()
-        conn.close()
-        return jsonify({"status": "success", "message": "Product match saved"})
-    else:
-        return jsonify({"status": "error", "message": "Detected product not allowed"})
+    conn = get_db_connection()
+    conn.execute('INSERT INTO product_matches (detected_product, correct_product) VALUES (?, ?)',
+                 (detected_product, correct_product))
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "success", "message": "Product match saved"})
 
 @app.route('/save_text_match', methods=['POST'])
 def save_text_match():
@@ -281,15 +325,12 @@ def save_text_match():
     if detected_product == "niks" and correct_product == "niks":
         return jsonify({"status": "error", "message": "Both detected and correct product are 'niks'. Not saving to database."})
 
-    if detected_product in allowed_object_classes or correct_product in allowed_object_classes:
-        conn = get_db_connection()
-        conn.execute('INSERT INTO text_matches (detected_product, correct_product) VALUES (?, ?)',
-                     (detected_product, correct_product))
-        conn.commit()
-        conn.close()
-        return jsonify({"status": "success", "message": "Text match saved"})
-    else:
-        return jsonify({"status": "error", "message": "Detected product not allowed"})
+    conn = get_db_connection()
+    conn.execute('INSERT INTO text_matches (detected_product, correct_product) VALUES (?, ?)',
+                 (detected_product, correct_product))
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "success", "message": "Text match saved"})
     
 @app.route('/get_product_stats', methods=['GET'])
 def get_product_stats():

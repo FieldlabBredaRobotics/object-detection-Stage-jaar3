@@ -1,20 +1,36 @@
 html, body {
-    height: 100%;
-    margin: 0;
-  }
-  
-  .start-screen-container {
+  background-color: #e6e6e6;
+  height: 100%;
+}
+
+.start-screen-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 80vh; /* Full viewport height */
+    height: 90.7vh; /* Full viewport height */
+    position: relative;
+    background-color: #e6e6e6;
   }
-  
+
   .start-demo-btn {
     font-size: 32px; /* Larger font size */
     padding: 30px 60px; /* Larger padding */
-    background-color: green;
+    background-color: #29a7a8;
     color: white;
     border: none;
     border-radius: 10px;
+    position: relative; /* Ensure the button is above the background image */
+    z-index: 1;
+    margin-left: -50px; /* Adjust this value to position the button correctly */
+  }
+
+  .background-image {
+    position: fixed;  /* Changed to fixed to stay in position while scrolling */
+    bottom: 12vh;       /* Anchor to bottom */
+    transform: translateX(50%);  /* Center the left edge on the button */
+    height: 70vh;    /* 90% of viewport height, leaving space for header */
+    width: auto;     /* Maintain aspect ratio */
+    object-fit: contain;  /* Show entire logo without cropping */
+    /* z-index: 0;
+    opacity: 0.5; */
   }

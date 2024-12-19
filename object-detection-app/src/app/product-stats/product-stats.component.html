@@ -1,28 +1,12 @@
 <div>
-        <apx-chart
-          *ngIf="objectDetectionChartOptions.series.length > 0"
-          [series]="objectDetectionChartOptions.series"
-          [chart]="objectDetectionChartOptions.chart"
-          [title]="objectDetectionChartOptions.title"
-          [xaxis]="objectDetectionChartOptions.xaxis"
-          [dataLabels]="objectDetectionChartOptions.dataLabels"
-        ></apx-chart>
-      
-        <apx-chart
-          *ngIf="productDetectionAccuracyChartOptions.series.length > 0"
-          [series]="productDetectionAccuracyChartOptions.series"
-          [chart]="productDetectionAccuracyChartOptions.chart"
-          [title]="productDetectionAccuracyChartOptions.title"
-          [xaxis]="productDetectionAccuracyChartOptions.xaxis"
-          [dataLabels]="productDetectionAccuracyChartOptions.dataLabels"
-        ></apx-chart>
-      
-        <apx-chart
-          *ngIf="textDetectionAccuracyChartOptions.series.length > 0"
-          [series]="textDetectionAccuracyChartOptions.series"
-          [chart]="textDetectionAccuracyChartOptions.chart"
-          [title]="textDetectionAccuracyChartOptions.title"
-          [xaxis]="textDetectionAccuracyChartOptions.xaxis"
-          [dataLabels]="textDetectionAccuracyChartOptions.dataLabels"
-        ></apx-chart>
-      </div>
+  <apx-chart
+    *ngIf="chartOptions.series.length > 0"
+    [series]="chartOptions.series"
+    [chart]="chartOptions.chart"
+    [title]="chartOptions.title"
+    [xaxis]="chartOptions.xaxis"
+    [yaxis]="chartOptions.yaxis"
+    [dataLabels]="chartOptions.dataLabels"
+    [plotOptions]="chartOptions.plotOptions"
+  ></apx-chart>
+</div>

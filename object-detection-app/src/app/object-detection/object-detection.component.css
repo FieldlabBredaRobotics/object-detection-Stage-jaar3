@@ -2,7 +2,8 @@
 html, body {
   height: 100%;
   margin: 0;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+  overflow-x: hidden;
+   background-color: #e6e6e6; /* Prevent horizontal scrolling */
 }
 
 body {
@@ -59,7 +60,7 @@ body {
 
 .feedback-container {
   width: 100%;
-  background-color: white;
+  /* background-color: white; */
   padding: 10px;
   margin-top: 10px; /* Add margin to the top */
   animation: slideDown 0.5s ease-out; /* Apply the slide down animation */
@@ -117,7 +118,7 @@ body {
 }
 
 .input-short {
-  width: 90%; /* Adjust the width as needed */
+  width: 85%; /* Adjust the width as needed */
 }
 
 .btn-lg {
@@ -195,4 +196,22 @@ body {
 
 input::placeholder {
   color: lightgray;
+}
+
+.custom-btn-success {
+  background-color: #29a7a8;
+  border-color: #29a7a8;
+  color: white; /* Optional: ensure the text color is readable */
+}
+
+.background-image {
+  position: fixed;  /* Changed to fixed to stay in position while scrolling */
+  bottom: 9vh; 
+  left: 125vh;      /* Anchor to bottom */
+  transform: translateX(50%);  /* Center the left edge on the button */
+  height: 40vh;    /* 90% of viewport height, leaving space for header */
+  width: auto;     /* Maintain aspect ratio */
+  object-fit: contain;  /* Show entire logo without cropping */
+  z-index: 1;
+  opacity: 0.5; 
 }
