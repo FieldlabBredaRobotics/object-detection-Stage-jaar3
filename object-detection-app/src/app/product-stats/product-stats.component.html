@@ -10,3 +10,28 @@
     [plotOptions]="chartOptions.plotOptions"
   ></apx-chart>
 </div>
+<br>
+<div class="row">
+  <div class="col-md-3" *ngFor="let pieChartOption of pieChartOptions">
+    <apx-chart
+      [series]="pieChartOption.series"
+      [chart]="pieChartOption.chart"
+      [labels]="pieChartOption.labels"
+      [title]="pieChartOption.title"
+      [dataLabels]="pieChartOption.dataLabels"
+    ></apx-chart>
+  </div>
+</div>
+
+<div>
+  <apx-chart
+    *ngIf="funnelChartOptions.series.length > 0"
+    [series]="funnelChartOptions.series"
+    [chart]="funnelChartOptions.chart"
+    [title]="funnelChartOptions.title"
+    [xaxis]="funnelChartOptions.xaxis"
+    [yaxis]="funnelChartOptions.yaxis"
+    [dataLabels]="funnelChartOptions.dataLabels"
+    [plotOptions]="funnelChartOptions.plotOptions"
+  ></apx-chart>
+</div>

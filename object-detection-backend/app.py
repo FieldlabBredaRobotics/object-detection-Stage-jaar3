@@ -336,9 +336,17 @@ def save_text_match():
 def get_product_stats():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT detected_product, COUNT(*) FROM product_matches GROUP BY detected_product")
-    stats = cursor.fetchall()
+    cursor.execute("SELECT detected_product, correct_product FROM product_matches")
+    rows = cursor.fetchall()
     conn.close()
+
+    # Convert rows to a list of dictionaries
+    stats = []
+    for row in rows:
+        stats.append({
+            "detected_product": row["detected_product"],
+            "correct_product": row["correct_product"]
+        })
 
     return jsonify(stats)
 
