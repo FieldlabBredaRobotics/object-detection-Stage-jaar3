@@ -1,10 +1,75 @@
-.row {
+body {
+    overflow-x: hidden; /* Voorkom horizontaal scrollen */
+  }
+  
+  * {
+    box-sizing: border-box; /* Zorg ervoor dat padding en border worden meegerekend in de totale breedte en hoogte */
+  }
+  
+  .row {
     display: flex;
     flex-wrap: wrap;
+    margin-left: -10px; /* Verwijder horizontale margin */
+    margin-right: 10px; /* Verwijder horizontale margin */
+  }
+  
+  .col-md-3, .col-md-8, .col-md-4 {
+    padding-left: 10px; /* Voeg padding toe binnen de kolommen */
+    padding-right: 10px; /* Voeg padding toe binnen de kolommen */
   }
   
   .col-md-3 {
     flex: 0 0 25%;
     max-width: 25%;
-    padding: 10px;
+  }
+  
+  .col-md-8 {
+    flex: 0 0 66.6667%;
+    max-width: 66.6667%;
+  }
+  
+  .col-md-4 {
+    flex: 0 0 33.3333%;
+    max-width: 33.3333%;
+  }
+  
+  .col-12 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  .explanation {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px;
+  }
+  
+  .d-flex {
+    display: flex;
+  }
+  
+  .align-items-center {
+    align-items: center;
+  }
+  
+  .justify-content-center {
+    justify-content: center;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .chart-container {
+    width: 100%;
+    height: 350px; /* Stel een vaste hoogte in voor de taartdiagrammen */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+   
+  }
+  
+  apx-chart {
+    width: 100% !important;
+    height: 100% !important; 
   }

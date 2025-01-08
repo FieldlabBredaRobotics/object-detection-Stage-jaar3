@@ -1,37 +1,58 @@
-<div>
-  <apx-chart
-    *ngIf="chartOptions.series.length > 0"
-    [series]="chartOptions.series"
-    [chart]="chartOptions.chart"
-    [title]="chartOptions.title"
-    [xaxis]="chartOptions.xaxis"
-    [yaxis]="chartOptions.yaxis"
-    [dataLabels]="chartOptions.dataLabels"
-    [plotOptions]="chartOptions.plotOptions"
-  ></apx-chart>
-</div>
-<br>
 <div class="row">
-  <div class="col-md-3" *ngFor="let pieChartOption of pieChartOptions">
+  <div class="col-md-8">
     <apx-chart
-      [series]="pieChartOption.series"
-      [chart]="pieChartOption.chart"
-      [labels]="pieChartOption.labels"
-      [title]="pieChartOption.title"
-      [dataLabels]="pieChartOption.dataLabels"
+      *ngIf="chartOptions.series.length > 0"
+      [series]="chartOptions.series"
+      [chart]="chartOptions.chart"
+      [title]="chartOptions.title"
+      [xaxis]="chartOptions.xaxis"
+      [yaxis]="chartOptions.yaxis"
+      [dataLabels]="chartOptions.dataLabels"
     ></apx-chart>
+  </div>
+  <div class="col-md-4 d-flex align-items-center justify-content-center">
+    <div class="explanation text-center">
+      <h4>Uitleg over de statistiek</h4>
+      <p>De staafdiagram toont hoe vaak de AI producten herkent, ongeacht of dit juist of onjuist is. De cirkeldiagram laat zien wat de AI herkende en of dat correct was, gebaseerd op gebruikersfeedback.</p>
+    </div>
   </div>
 </div>
 
-<div>
-  <apx-chart
-    *ngIf="funnelChartOptions.series.length > 0"
-    [series]="funnelChartOptions.series"
-    [chart]="funnelChartOptions.chart"
-    [title]="funnelChartOptions.title"
-    [xaxis]="funnelChartOptions.xaxis"
-    [yaxis]="funnelChartOptions.yaxis"
-    [dataLabels]="funnelChartOptions.dataLabels"
-    [plotOptions]="funnelChartOptions.plotOptions"
-  ></apx-chart>
+<br>
+
+<div class="row">
+  <div class="col-md-3" *ngFor="let pieChartOption of pieChartOptions">
+    <div class="chart-container">
+      <apx-chart
+        [series]="pieChartOption.series"
+        [chart]="pieChartOption.chart"
+        [labels]="pieChartOption.labels"
+        [title]="pieChartOption.title"
+        [dataLabels]="pieChartOption.dataLabels"
+      ></apx-chart>
+    </div>
+  </div>
+</div>
+
+<br>
+
+<div class="row">
+  <div class="col-md-8">
+    <apx-chart
+      *ngIf="funnelChartOptions.series.length > 0"
+      [series]="funnelChartOptions.series"
+      [chart]="funnelChartOptions.chart"
+      [title]="funnelChartOptions.title"
+      [xaxis]="funnelChartOptions.xaxis"
+      [yaxis]="funnelChartOptions.yaxis"
+      [dataLabels]="funnelChartOptions.dataLabels"
+      [plotOptions]="funnelChartOptions.plotOptions"
+    ></apx-chart>
+  </div>
+  <div class="col-md-4 d-flex align-items-center justify-content-center">
+    <div class="explanation text-center">
+      <h4>Uitleg over de statistiek</h4>
+      <p>Deze grafiek toont hoe de tekst AI zinnen vertaalt naar objectklassen. De blauwe balken geven correct vertaalde zinnen weer, terwijl de groene balken incorrect vertaalde zinnen tonen.</p>
+    </div>
+  </div>
 </div>

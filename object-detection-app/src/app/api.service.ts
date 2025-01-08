@@ -45,6 +45,7 @@ export class ApiService {
   getDetectionStatus(): Observable<any> {
     return this.http.get(`${this.apiUrl}/get_detection_status`);
   }
+
   getObjectDetectionStats(): Observable<any> {
     return this.http.get(`${this.apiUrl}/get_object_detection_stats`);
   }
@@ -55,5 +56,9 @@ export class ApiService {
   
   getTextDetectionAccuracy(): Observable<any> {
     return this.http.get(`${this.apiUrl}/get_text_detection_accuracy`);
+  }
+
+  getTextStats(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_text_stats`);
   }
 }	

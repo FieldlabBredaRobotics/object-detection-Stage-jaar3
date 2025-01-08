@@ -350,6 +350,23 @@ def get_product_stats():
 
     return jsonify(stats)
 
+@app.route('/get_text_stats', methods=['GET'])
+def get_text_stats():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT detected_product, correct_product FROM text_matches")
+    rows = cursor.fetchall()
+    conn.close()
+
+    # Convert rows to a list of dictionaries
+    stats = []
+    for row in rows:
+        stats.append({
+            "detected_product": row["detected_product"],
+            "correct_product": row["correct_product"]
+        })
+
+    return jsonify(stats)
 
 @app.route('/capture_and_detect', methods=['POST'])
 def capture_and_detect():

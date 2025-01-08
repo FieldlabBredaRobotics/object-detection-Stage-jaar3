@@ -52,9 +52,8 @@ export class ProductStatsComponent implements OnInit {
     },
     dataLabels: {
       enabled: true,
-      formatter: function (val: number, opts: any) {
-        const confidence = opts.w.config.series[opts.seriesIndex].data[opts.dataPointIndex].confidence;
-        return typeof val === 'number' ? `${val.toFixed(0)} (${confidence}%)` : val;
+      formatter: function (val: number) {
+        return typeof val === 'number' ? val.toFixed(0) : val;
       },
       style: {
         colors: ['#000']
@@ -87,9 +86,8 @@ export class ProductStatsComponent implements OnInit {
     },
     tooltip: {
       y: {
-        formatter: function (val: number, opts: any) {
-          const confidence = opts.w.config.series[opts.seriesIndex].data[opts.dataPointIndex].confidence;
-          return typeof val === 'number' ? `${val.toFixed(0)} (Confidence: ${confidence}%)` : val;
+        formatter: function (val: number) {
+          return typeof val === 'number' ? val.toFixed(0) : val;
         }
       }
     }
@@ -108,18 +106,19 @@ export class ProductStatsComponent implements OnInit {
     series: [],
     chart: {
       type: "bar",
-      height: 350
+      height: 350,
+      stacked: true
     },
     title: {
-      text: "Object Detection Funnel"
+      text: "Text Detection Stats"
     },
     plotOptions: {
       bar: {
-        horizontal: true,
-        barHeight: '75%',
+        horizontal: false,
         dataLabels: {
           position: 'top'
-        }
+        },
+        barHeight: '75%'
       }
     },
     dataLabels: {
@@ -130,7 +129,7 @@ export class ProductStatsComponent implements OnInit {
     },
     yaxis: {
       min: 0,
-      max: 160,
+      max: 20, // Default max value
       tickAmount: 8,
       labels: {
         formatter: function (val: number) {
@@ -140,16 +139,32 @@ export class ProductStatsComponent implements OnInit {
     }
   };
 
+  // Mapping van originele namen naar Nederlandse namen
+  private nameMapping: { [key: string]: string } = {
+    'carkeys': 'autosleutels',
+    'auto sleutels': 'autosleutels',
+    'car-key': 'autosleutels',
+    'wallet': 'portemonnee',
+    'comb': 'kam',
+    'glasses': 'bril',
+    'keys': 'sleutels',
+    'mobile_phone': 'telefoon',
+    'mobile-phone': 'telefoon',
+    'pen': 'pen',
+    'watch': 'horloge'
+  };
+
   constructor(private apiService: ApiService) {}
 
   ngOnInit() {
     // Haal de data op voor de eerste statistiek
     this.apiService.getObjectDetectionStats().subscribe((detectionStats: any[]) => {
-      const categories = detectionStats.map((stat: any) => stat.name);
-      const data = detectionStats.map((stat: any) => ({
-        x: stat.name,
-        y: stat.count,
-        confidence: stat.confidence
+      // Sorteer de data aflopend op basis van de count
+      const sortedStats = detectionStats.sort((a, b) => b.count - a.count);
+      const categories = sortedStats.map((stat: any) => stat.name);
+      const data = sortedStats.map((stat: any) => ({
+        x: this.nameMapping[stat.name] || stat.name,
+        y: stat.count
       }));
 
       this.chartOptions = {
@@ -161,7 +176,7 @@ export class ProductStatsComponent implements OnInit {
           }
         ],
         xaxis: {
-          categories: categories
+          categories: categories.map(name => this.nameMapping[name] || name)
         },
         yaxis: {
           ...this.chartOptions.yaxis,
@@ -174,14 +189,26 @@ export class ProductStatsComponent implements OnInit {
     this.apiService.getProductStats().subscribe((productStats: any[]) => {
       const groupedData = this.groupDataByClass(productStats);
       this.pieChartOptions = this.generatePieChartOptions(groupedData);
+    });
 
-      // Haal de data op voor de trechterdiagram
+    // Haal de data op voor de derde statistiek
+    this.apiService.getTextStats().subscribe((textMatches: any[]) => {
+      const groupedData = this.groupDataByClass(textMatches);
       const funnelData = this.generateFunnelChartData(groupedData);
+      const maxCount = Math.max(
+        ...funnelData.series[0].data,
+        ...funnelData.series[1].data
+      );
+
       this.funnelChartOptions = {
         ...this.funnelChartOptions,
         series: funnelData.series,
         xaxis: {
-          categories: funnelData.categories
+          categories: funnelData.categories.map((name: string | number) => this.nameMapping[name] || name)
+        },
+        yaxis: {
+          ...this.funnelChartOptions.yaxis,
+          max: Math.ceil(maxCount / 20) * 20
         }
       };
     });
@@ -190,6 +217,9 @@ export class ProductStatsComponent implements OnInit {
   groupDataByClass(stats: any[]): any {
     const groupedData: any = {};
     stats.forEach(stat => {
+      if (stat.detected_product.toLowerCase() === 'niks herkend') {
+        return;
+      }
       if (!groupedData[stat.detected_product]) {
         groupedData[stat.detected_product] = {};
       }
@@ -205,16 +235,16 @@ export class ProductStatsComponent implements OnInit {
     const pieChartOptions: any[] = [];
     for (const [detectedProduct, correctProducts] of Object.entries(groupedData)) {
       const series = Object.values(correctProducts as { [key: string]: number });
-      const labels = Object.keys(correctProducts as { [key: string]: number });
+      const labels = Object.keys(correctProducts as { [key: string]: number }).map(name => this.nameMapping[name] || name);
       pieChartOptions.push({
         series: series,
         chart: {
           type: "pie",
-          height: 350
+          height: 240
         },
         labels: labels,
         title: {
-          text: `Detection Breakdown for ${detectedProduct}`
+          text: `Detection Breakdown for ${this.nameMapping[detectedProduct] || detectedProduct}`
         },
         dataLabels: {
           enabled: true
@@ -239,12 +269,15 @@ export class ProductStatsComponent implements OnInit {
       categories: []
     };
     for (const [detectedProduct, correctProducts] of Object.entries(groupedData)) {
+      if (detectedProduct.toLowerCase() === 'niks herkend') {
+        continue;
+      }
       const correctProductsTyped = correctProducts as { [key: string]: number };
       const correctCount = correctProductsTyped[detectedProduct] || 0;
       const incorrectCount = Object.values(correctProductsTyped).reduce((acc: number, count: number) => acc + count, 0) - correctCount;
       funnelData.series[0].data.push(correctCount);
       funnelData.series[1].data.push(incorrectCount);
-      funnelData.categories.push(detectedProduct);
+      funnelData.categories.push(this.nameMapping[detectedProduct] || detectedProduct);
     }
     return funnelData;
   }
