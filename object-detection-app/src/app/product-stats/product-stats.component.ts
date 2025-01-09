@@ -60,7 +60,7 @@ export class ProductStatsComponent implements OnInit {
       }
     },
     title: {
-      text: "Object Detection Stats"
+      text: "Object Detectie Statistiek"
     },
     plotOptions: {
       bar: {
@@ -110,7 +110,7 @@ export class ProductStatsComponent implements OnInit {
       stacked: true
     },
     title: {
-      text: "Text Detection Stats"
+      text: "Tekst Detectie Statistiek"
     },
     plotOptions: {
       bar: {
@@ -202,13 +202,33 @@ export class ProductStatsComponent implements OnInit {
 
       this.funnelChartOptions = {
         ...this.funnelChartOptions,
-        series: funnelData.series,
+        series: [
+          {
+            name: 'Correct',
+            data: funnelData.series[0].data,
+            color: '#29a7a8' // Blauw voor correcte balken
+          },
+          {
+            name: 'Incorrect',
+            data: funnelData.series[1].data,
+            color: '#ffcccc' // Licht roze voor incorrecte balken
+          }
+        ],
         xaxis: {
           categories: funnelData.categories.map((name: string | number) => this.nameMapping[name] || name)
         },
         yaxis: {
           ...this.funnelChartOptions.yaxis,
           max: Math.ceil(maxCount / 20) * 20
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            dataLabels: {
+              position: 'top'
+            },
+            barHeight: '75%'
+          }
         }
       };
     });
@@ -244,7 +264,7 @@ export class ProductStatsComponent implements OnInit {
         },
         labels: labels,
         title: {
-          text: `Detection Breakdown for ${this.nameMapping[detectedProduct] || detectedProduct}`
+          text: `Detectie-overzicht voor ${this.nameMapping[detectedProduct] || detectedProduct}`
         },
         dataLabels: {
           enabled: true
