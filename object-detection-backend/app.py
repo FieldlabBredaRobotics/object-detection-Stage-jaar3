@@ -68,11 +68,29 @@ def get_synonyms(user_input):
     # Als er synoniemen zijn gevonden, geef dan de bijbehorende klassen terug
     return matched_classes if matched_classes else []
 
+# def init_camera():
+#     global camera
+#     camera = cv2.VideoCapture(0) # hier camera veranderen <<<<<<<<<<<<<<<<<<<--------------------------- naar 1 voor externe camera
+#     if not camera.isOpened():
+#         raise RuntimeError("Could not open camera.")
+    
 def init_camera():
     global camera
-    camera = cv2.VideoCapture(0) # hier camera veranderene <<<<<<<<<<<<<<<<<<<---------------------------
+    # Probeer eerst de externe camera (index 1)
+    camera = cv2.VideoCapture(0)
     if not camera.isOpened():
-        raise RuntimeError("Could not open camera.")
+        print ("camera gebruikt externe cameraaaaaaaaaaaaaaaaaaaaaaaa")
+        # Als de externe camera niet beschikbaar is, gebruik de standaard camera (index 0)
+        camera = cv2.VideoCapture(1)
+        if not camera.isOpened():
+            raise RuntimeError("Could not open any camera.")
+# def check_camera():
+#     global camera
+#     while True:
+#         if not camera.isOpened():
+#             print("Camera disconnected. Trying to reconnect...")
+#             init_camera()
+#         time.sleep(5)
 
 def init_yolo_model():
     global yolo_model
@@ -101,10 +119,14 @@ def preprocess_text(text):
     try:
         text = text.lower()
         text = re.sub(r'[^\w\s]', '', text)
+
+        print(text)  # Output: "ditiseenvoorbeeldzin."
+
         tokens = word_tokenize(text)
+        print(tokens)  # Output: ['ditiseenvoorbeeldzin']
         # Only use stopwords if available
         try:
-            tokens = [token for token in tokens if token not in stopwords.words('dutch')]
+            tokens = [token for token in tokens if token not in stopwords.words('dutch')] # Output: ['ditiseenvoorbeeldzin']
         except:
             pass  # Skip stopwords removal if not available
         lemmatizer = WordNetLemmatizer()
@@ -457,6 +479,9 @@ if __name__ == '__main__':
     try:
        # init_nltk()  # Initialize NLTK resources
         init_camera()
+        # camera_check_thread = threading.Thread(target=check_camera)
+        # camera_check_thread.daemon = True
+        # camera_check_thread.start()
         init_yolo_model()
         init_text_classifier()
         app.run(host='0.0.0.0', port=5000, debug=True)
