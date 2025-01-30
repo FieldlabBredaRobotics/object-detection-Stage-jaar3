@@ -120,17 +120,19 @@ def preprocess_text(text):
         text = text.lower()
         text = re.sub(r'[^\w\s]', '', text)
 
-        print(text)  # Output: "ditiseenvoorbeeldzin."
+        print("Proces text AAAAAAAAAAAAAAAAAAAAAAAA",text)  # Output: ik wil graag dat je opzoek gaat naar mijn telefoon
 
         tokens = word_tokenize(text)
-        print(tokens)  # Output: ['ditiseenvoorbeeldzin']
+        print("Token word tokenize BBBBBBBBBBBBBBBBBBBBBBB",tokens)  # Output: ['ik', 'wil', 'graag', 'dat', 'je', 'opzoek', 'gaat', 'naar', 'mijn', 'telefoon']
         # Only use stopwords if available
         try:
-            tokens = [token for token in tokens if token not in stopwords.words('dutch')] # Output: ['ditiseenvoorbeeldzin']
+            tokens = [token for token in tokens if token not in stopwords.words('dutch')] 
         except:
             pass  # Skip stopwords removal if not available
+        print("Token word tokenize CCCCCCCCCCCCCCCCCCCCC",tokens)  # Output: ['graag', 'opzoek', 'gaat', 'telefoon']
         lemmatizer = WordNetLemmatizer()
         tokens = [lemmatizer.lemmatize(token) for token in tokens]
+        print("Token word tokenize DDDDDDDDDDDDDDDDDDD",tokens) # Output: ['graag', 'opzoek', 'gaat', 'telefoon']
         return ' '.join(tokens)
     except Exception as e:
         print(f"Warning: Error in text preprocessing: {e}")
@@ -156,14 +158,26 @@ def process_natural_language():
         return jsonify({"status": "error", "message": "No text provided"})
 
     input_text = data['text']
+    print("Input text EEEEEEEEEEEEEEE",input_text) # Output: Ik wil graag dat je opzoek gaat naar mijn telefoon
+
     processed_text = preprocess_text(input_text)
+    print("processed_text FFFFFFFFFFFFFFFFF",processed_text) # Output: graag opzoek gaat telefoon
     
     # Make prediction
     text_vectorized = text_classifier['vectorizer'].transform([processed_text])
+    print("text_vectorized GGGGGGGGGGGGG",text_vectorized) # Output: <Compressed Sparse Row sparse matrix of dtype 'float64' with 1 stored elements and shape (1, 358)> Coords Values (0, 298) 1.0
+
     predicted_probabilities = text_classifier['classifier'].predict_proba(text_vectorized)
+    print("predicted_probabilities HHHHHHHHHHHHHHHHH",predicted_probabilities) # Output: [[0 0 0 0 1 0 0 0]]
+
     predicted_category_index = np.argmax(predicted_probabilities)
+    print("predicted_category_index IIIIIIIIIIIIIIIIIIII",predicted_category_index) # Output: 4
+
     predicted_category = text_classifier['classifier'].classes_[predicted_category_index]
+    print("predicted_category JJJJJJJJJJJJJJJJJJJJ",predicted_category) # Output: mobile-phone
+
     confidence = predicted_probabilities[0][predicted_category_index]
+    print("confidence KKKKKKKKKKKKKKKKKK",confidence) # Output: graag opzoek gaat telefoon
 
     # Get synonyms with error handling
     synonyms_list = get_synonyms(predicted_category)
